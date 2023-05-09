@@ -105,8 +105,8 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_wait(void);
 extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
-extern uint64 sys_trace(uint64);
-extern uint64 sys_sysinfo(struct sysinfo *);
+extern uint64 sys_trace(void);
+extern uint64 sys_sysinfo(void);
 
 static uint64 (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -169,9 +169,8 @@ syscall(void)
 
   num = p->trapframe->a7;
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
-    int trace = p->trace;
     p->trapframe->a0 = syscalls[num]();
-    if(trace & (1 << num)) {
+    if(p->trace & (1 << num)) {
       printf("%d: syscall %s -> %d\n",p->pid, syscallname[num], p->trapframe->a0);
     }
   } else {

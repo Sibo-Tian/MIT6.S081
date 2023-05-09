@@ -97,7 +97,7 @@ sys_uptime(void)
   return xticks;
 }
 uint64
-sys_trace(uint64) 
+sys_trace(void) 
 {
   int n;
   if(argint(0, &n) < 0)
@@ -106,14 +106,15 @@ sys_trace(uint64)
   return 0;
 }
 uint64
-sys_sysinfo(struct sysinfo *)
+sys_sysinfo(void)
 {
-  struct sysinfo *info;
-  if(argaddr(0, (struct sysinfo*)&info) < 0)
+  uint64 addr;
+  struct sysinfo info;
+  if(argaddr(0, &addr) < 0)
     return -1;
-  uint64 current_freemem = freemem();
-  uint64 current_nproc = nproc();
-  copyout(myproc()->pagetable, info, (char*)&current_freemem, sizeof(current_freemem));
-  copyout(myproc()->pagetable, info, (char*)(current_nproc),  sizeof(current_nproc));
+  info.freemem = freemem();
+  info.nproc = nproc();
+  if(copyout(myproc()->pagetable, addr, (char*)&info, sizeof(info)))
+    return -1;
   return 0;
 }
