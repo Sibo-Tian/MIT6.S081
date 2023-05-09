@@ -93,6 +93,8 @@ struct proc {
   int xstate;                  // Exit status to be returned to parent's wait
   int pid;                     // Process ID
 
+  //Lab syscall
+  int trace;              // If non-zero, trace the system call
   // wait_lock must be held when using this:
   struct proc *parent;         // Parent process
 

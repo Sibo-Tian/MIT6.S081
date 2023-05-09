@@ -80,3 +80,17 @@ kalloc(void)
     memset((char*)r, 5, PGSIZE); // fill with junk
   return (void*)r;
 }
+uint64
+freemem(void)
+{
+  uint64 mem = 0;
+  struct run *r;
+  acquire(&kmem.lock); //I think lock is necessary because there may be accolcation and deallocation during the computation of free memory
+  r = kmem.freelist;
+  while(r){
+    mem += PGSIZE;
+    r = r->next;
+  }
+  release(&kmem.lock);
+  return mem;
+}
