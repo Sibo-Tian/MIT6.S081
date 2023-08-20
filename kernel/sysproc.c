@@ -76,15 +76,6 @@ sys_sleep(void)
 }
 
 
-#ifdef LAB_PGTBL
-int
-sys_pgaccess(void)
-{
-  // lab pgtbl: your code here.
-  return 0;
-}
-#endif
-
 uint64
 sys_kill(void)
 {
@@ -107,3 +98,62 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+// int
+// pgaccess(void) {
+//   uint64 va, buffer;
+//   int num;
+//   // assert(num <= 64);
+//   uint64 result = 0;
+//   int count = 0;
+//   if(argaddr(0, &va) < 0)
+//     return -1;
+//   if(argint(1, &num) < 0)
+//     return -1;
+//   if(argaddr(2, &buffer) < 0)
+//     return -1;
+//   if(num > 64)
+//     return -1;
+//   for(uint64 addr = va; addr < va + num * PGSIZE; addr += PGSIZE) {
+//     pte_t* pte = walk(myproc()->pagetable, addr, 0);
+//     if ((*pte & PTE_V) == 0)
+//       panic("VA not valid.");
+//     if (*pte & PTE_A)
+//       result = result | (1 << count);
+//       *pte = *pte & (~PTE_A);
+//     count ++;
+//   }
+//   copyout(myproc()->pagetable, buffer, (char*)(&result), sizeof(result));
+//   return 0;
+// }
+
+#ifdef LAB_PGTBL
+int
+sys_pgaccess(void)
+{
+  uint64 va, buffer;
+  int num;
+  // assert(num <= 64);
+  uint64 result = 0;
+  int count = 0;
+  if(argaddr(0, &va) < 0)
+    return -1;
+  if(argint(1, &num) < 0)
+    return -1;
+  if(argaddr(2, &buffer) < 0)
+    return -1;
+  if(num > 64)
+    return -1;
+  for(uint64 addr = va; addr < va + num * PGSIZE; addr += PGSIZE) {
+    pte_t* pte = walk(myproc()->pagetable, addr, 0);
+    if ((*pte & PTE_V) == 0)
+      panic("VA not valid.");
+    if (*pte & PTE_A)
+      result = result | (1 << count);
+      *pte = *pte & (~PTE_A);
+    count ++;
+  }
+  copyout(myproc()->pagetable, buffer, (char*)(&result), sizeof(result));
+  return 0;
+}
+#endif

@@ -1,0 +1,29 @@
+## Lab3: PageTable
+
+### 1. Speed up system calls
+
+思路：创建process时，专门分配一个物理页存放pid（以struct usyscall的形式），并且创建User PageTable时map USYSCALL到这个地址；
+
+实现过程：（均位于./kernel/proc.c，下文仅用函数名指代，增添代码均使用//Start code这一注释标注）
+
+1. allocproc中，为usyscall分配物理页；
+2. proc_pagetable中，map USYSCALL到p->usyscall；
+3. 结束时，在proc_freepagetable中取消map；
+4. 结束时，在freeproc中释放usyscall的物理页；
+
+### 2. Print a page table
+
+思路：实现一个递归函数（DFS），搜索每一级页表中的有效PTE，打印，并且递归地打印其子节点（下一级页表）；
+
+实现过程：在./kernel/vm.c中，按上述思路实现vmprint_helper和vmprint函数。（增添代码均使用//Start code这一注释标注）
+
+### 3. Detect which pages have been accessed
+
+思路：对于每一个需要检查的page，先用walk获取PTE，然后检查PTE_A是否置1；注意在检查完后需要将PTE_A置0；
+
+实现过程：在./kernel/sysproc.c中，按上述思路实现sys_pgaccess函数；每发现一个accessed page，将bitmap对应位设为1；由于使用uint64作为bitmap，因此限制最多页数为64。（增添代码均使用//Start code这一注释标注）
+
+
+Study Notes:
+
+1. Trampoline: 跳板与页表密切相关；在OS中，有两个地方需要使用trampoline：第一个地方是CPU直接使用物理地址切换到CPU开始使用虚拟地址的部分，这里的解决方案是首次为CPU设置启用页表的代码（内核boot过程中），在虚拟地址中仍映射到原先物理地址的部分；第二个地方是每次从用户态Trap进入内核态时，解决方案是trampoline.S中的代码在用户态和内核态的虚拟地址相同（多（虚拟地址）对一（物理地址））
