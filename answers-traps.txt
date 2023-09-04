@@ -1,0 +1,6 @@
+1. a2
+2. jalr 638(ra)
+3. 0x630
+4. 0x38
+5. NULL d l r (big endian)
+6. 
