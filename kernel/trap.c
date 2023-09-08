@@ -69,7 +69,7 @@ usertrap(void)
     // ok
 
   } 
-  else if(r_scause() == 15){
+  else if(r_scause() == 15){ // (store) page fault code 15 is learnt from google search(https://pdos.csail.mit.edu/6.828/2019/lec/l-usingvm.pdf)
     uint64 va = r_stval();
     if(cow(p->pagetable, va) < 0)
       p->killed = 1;
