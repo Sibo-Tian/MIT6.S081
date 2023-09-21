@@ -1,5 +1,6 @@
 struct stat;
 struct rtcdate;
+// struct context;
 
 // system calls
 int fork(void);
